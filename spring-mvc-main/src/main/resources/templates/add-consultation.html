@@ -171,35 +171,39 @@
     <main>
         <div class="py-5 text-center">
             <img class="d-block mx-auto mb-4" src="/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
-            <h2>Medical records</h2>
-            <p class="lead">CPF - NOME</p>
+            <h2>Registros médicos</h2>
+            <p class="lead" th:text="${paciente.cpf + ' - ' + paciente.nomeCompleto}">CPF - NOME</p>
         </div>
 
         <div class="row g-5">
             <div class="col-md-12">
-                <h4 class="mb-3">Medical history</h4>
-                <form >
+                <h4 class="mb-3">Histórico médico</h4>
+                <form>
                     <div class="col-sm-12">
-                        <textarea class="form-control" id="medicalHistory" rows="5" readonly> </textarea>
-                        </div>
+                <textarea class="form-control" id="historicoMedico" name="historicoMedico" rows="5" readonly
+                          th:text="${paciente.historicoMedico}"> </textarea>
+                    </div>
                 </form>
             </div>
         </div>
         <hr class="my-4">
         <div class="row g-5">
             <div class="col-md-12">
-                <h4 class="mb-3">New medical record</h4>
-                <form action="/consultation/save" method="post">
+                <h4 class="mb-3">Novo registro médico</h4>
+                <form action="/consultation/save" method="post" th:object="${consulta}">
+                    <input type="hidden" name="cpf" th:value="${paciente.cpf}" />
+                    <input type="hidden" name="nomeCompleto" th:value="${paciente.nomeCompleto}" />
+
                     <div class="col-sm-12">
-                        <label for="anamnesis" class="form-label">Anamnesis</label>
-                        <textarea class="form-control" id="anamnesis" rows="5" > </textarea>
+                        <label for="anamnese" class="form-label">Anamnese</label>
+                        <textarea class="form-control" id="anamnese" name="anamnese" rows="5"> </textarea>
                     </div>
                     <div class="col-sm-12">
-                        <label for="prescription" class="form-label" >Prescription</label>
-                        <textarea class="form-control" id="prescription" rows="5" > </textarea>
+                        <label for="prescricao" class="form-label">Prescrição</label>
+                        <textarea class="form-control" id="prescricao" name="prescricao" rows="5"> </textarea>
                     </div>
                     <hr class="my-4">
-                    <button class="w-100 btn btn-primary btn-lg" type="submit">Finish</button>
+                    <button class="w-100 btn btn-primary btn-lg" type="submit">Finalizar</button>
                 </form>
             </div>
         </div>

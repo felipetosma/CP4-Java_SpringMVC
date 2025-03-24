@@ -12,15 +12,17 @@ import org.springframework.web.servlet.ModelAndView;
 public class HomeController {
 
     @GetMapping("/")
-    public ModelAndView index(Model model) {
-        model.addAttribute("user", new PersonDto());
-        return new ModelAndView("index");
+    public ModelAndView index() {
+        ModelAndView mv = new ModelAndView("index");
+        mv.addObject("user", new PersonDto()); // Garante que 'user' não seja nulo
+        return mv;
     }
 
     @PostMapping("/sign-in")
-    public ModelAndView signIn(Model model, @ModelAttribute("user") PersonDto user) {
-        model.addAttribute("loggedAs", "Logged as " + user.getCpf());
-        model.addAttribute("patientLazy", new PersonDto());
-        return new ModelAndView("home");
+    public ModelAndView signIn(@ModelAttribute("user") PersonDto usuario) {
+        ModelAndView mv = new ModelAndView("home");
+        mv.addObject("loggedAs", "Logado como " + usuario.getCpf());
+        mv.addObject("patientLazy", new PersonDto());
+        return mv;
     }
 }

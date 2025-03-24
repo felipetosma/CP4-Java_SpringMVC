@@ -12,19 +12,39 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/consultation")
 public class ConsultationController {
 
-    //Validar se o paciente existe se existe nova consulta, caso contrário novo paciente
+    // Em uma aplicação real, teríamos um serviço/repositório de pacientes
+    // Por simplicidade, usaremos um exemplo codificado
+    private static final PersonDto PACIENTE_EXEMPLO = criarPacienteExemplo();
+
+    private static PersonDto criarPacienteExemplo() {
+        PersonDto paciente = new PersonDto();
+        paciente.setCpf("12345678900");
+        paciente.setNomeCompleto("Jessica Hadassa Sales");
+        paciente.setEmail("jessica@exemplo.com");
+        paciente.setTelefone("633193850-89");
+        paciente.setHistoricoMedico("Paciente com hipertensão. Última consulta em 12/01/2024.");
+        return paciente;
+    }
+
     @PostMapping("/start")
-    public ModelAndView start(Model model, @ModelAttribute("patientLazy") PersonDto patient) {
-        //Paciente já existe - no nosso vamos usar o cpf 12345678900 como ja existente
-        if(patient.getCpf().equals("12345678900")){
-            return new ModelAndView("add-consultation");
+    public ModelAndView start(Model model, @ModelAttribute("patientLazy") PersonDto paciente) {
+        // Se o paciente já existe - usamos CPF 12345678900 como existente
+        if(paciente.getCpf().equals("12345678900")){
+            ModelAndView mv = new ModelAndView("add-consultation");
+            mv.addObject("paciente", PACIENTE_EXEMPLO);
+            return mv;
         }
         return new ModelAndView("add-patient");
     }
 
     @PostMapping("/save")
-    public ModelAndView save() {
-        return new ModelAndView("home");
+    public ModelAndView save(@ModelAttribute("consulta") PersonDto consulta) {
+        // Em uma aplicação real, salvaríamos a consulta aqui
+        // Mas para nosso exemplo, apenas retornamos à página inicial
+        ModelAndView mv = new ModelAndView("home");
+        mv.addObject("loggedAs", "Logado como Médico");
+        mv.addObject("patientLazy", new PersonDto());
+        mv.addObject("mensagem", "Consulta salva com sucesso!");
+        return mv;
     }
-
 }
