@@ -160,7 +160,7 @@ xmlns:th="http://www.thymeleaf.org">
     <h1 class="h3 mb-3 fw-normal">Novo atendimento</h1>
 
     <div class="form-floating">
-      <input type="text" class="form-control" id="cpf" name="cpf" placeholder="123.456.789-10" th:value="*{cpf}">
+      <input type="text" class="form-control" id="cpf" name="cpf" placeholder="123.456.789-10" th:value="${patientLazy.cpf}">
       <label for="cpf">CPF do paciente</label>
     </div>
     <br/>

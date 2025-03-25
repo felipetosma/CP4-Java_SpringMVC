@@ -1,5 +1,8 @@
 package br.com.fiap.tds2ps.spring_mvc.dto;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class PersonDto {
     private String cpf;
     private String nomeCompleto;
@@ -11,6 +14,23 @@ public class PersonDto {
     private String historicoMedico;
     private String anamnese;
     private String prescricao;
+
+    // Método para adicionar nova consulta ao histórico médico
+    public void adicionarAoHistoricoMedico(String novaAnamnese, String novaPrescricao) {
+        LocalDate dataAtual = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String dataFormatada = dataAtual.format(formatter);
+
+        String novoRegistro = "\n\nData: " + dataFormatada +
+                "\nAnamnese: " + novaAnamnese +
+                "\nPrescrição: " + novaPrescricao;
+
+        if (this.historicoMedico == null || this.historicoMedico.trim().isEmpty()) {
+            this.historicoMedico = "Primeira consulta em " + dataFormatada + "." + novoRegistro;
+        } else {
+            this.historicoMedico += novoRegistro;
+        }
+    }
 
     // Getter e setter existente
     public String getCpf() {

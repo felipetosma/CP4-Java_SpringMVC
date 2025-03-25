@@ -1,6 +1,8 @@
 package br.com.fiap.tds2ps.spring_mvc.controller;
 
 import br.com.fiap.tds2ps.spring_mvc.dto.PersonDto;
+import br.com.fiap.tds2ps.spring_mvc.service.PacienteService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -12,39 +14,63 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/consultation")
 public class ConsultationController {
 
-    // Em uma aplicação real, teríamos um serviço/repositório de pacientes
-    // Por simplicidade, usaremos um exemplo codificado
-    private static final PersonDto PACIENTE_EXEMPLO = criarPacienteExemplo();
-
-    private static PersonDto criarPacienteExemplo() {
-        PersonDto paciente = new PersonDto();
-        paciente.setCpf("12345678900");
-        paciente.setNomeCompleto("Jessica Hadassa Sales");
-        paciente.setEmail("jessica@exemplo.com");
-        paciente.setTelefone("633193850-89");
-        paciente.setHistoricoMedico("Paciente com hipertensão. Última consulta em 12/01/2024.");
-        return paciente;
-    }
+    @Autowired
+    private PacienteService pacienteService;
 
     @PostMapping("/start")
-    public ModelAndView start(Model model, @ModelAttribute("patientLazy") PersonDto paciente) {
-        // Se o paciente já existe - usamos CPF 12345678900 como existente
-        if(paciente.getCpf().equals("12345678900")){
+    public ModelAndView start(Model model, @ModelAttribute PersonDto paciente) {
+        // Verifica se o paciente existe pelo CPF
+        if (paciente.getCpf() != null && !paciente.getCpf().trim().isEmpty() &&
+                pacienteService.existsPaciente(paciente.getCpf())) {
+
             ModelAndView mv = new ModelAndView("add-consultation");
-            mv.addObject("paciente", PACIENTE_EXEMPLO);
+            mv.addObject("paciente", pacienteService.getPacienteDto(paciente.getCpf()));
+            // Adiciona objeto consulta vazio para o formulário
+            mv.addObject("consulta", new PersonDto());
             return mv;
         }
-        return new ModelAndView("add-patient");
+
+        // Se o paciente não existe, redireciona para cadastro
+        ModelAndView mv = new ModelAndView("add-patient");
+        // Pré-preencher o CPF já informado para facilitar
+        mv.addObject("paciente", paciente);
+        return mv;
     }
 
     @PostMapping("/save")
-    public ModelAndView save(@ModelAttribute("consulta") PersonDto consulta) {
-        // Em uma aplicação real, salvaríamos a consulta aqui
-        // Mas para nosso exemplo, apenas retornamos à página inicial
-        ModelAndView mv = new ModelAndView("home");
-        mv.addObject("loggedAs", "Logado como Médico");
-        mv.addObject("patientLazy", new PersonDto());
-        mv.addObject("mensagem", "Consulta salva com sucesso!");
-        return mv;
+    public ModelAndView save(@ModelAttribute PersonDto consulta) {
+        try {
+            // Verificar se há dados da consulta
+            if (consulta.getCpf() != null && !consulta.getCpf().trim().isEmpty()) {
+                // Adicionar consulta usando o serviço
+                pacienteService.addConsulta(
+                        consulta.getCpf(),
+                        consulta.getAnamnese(),
+                        consulta.getPrescricao()
+                );
+
+                // Redirecionar para a página inicial com mensagem de sucesso
+                ModelAndView mv = new ModelAndView("home");
+                mv.addObject("loggedAs", "Logado como Médico");
+                mv.addObject("mensagem", "Consulta salva com sucesso!");
+                // Adicionar objeto vazio para evitar erro null em patientLazy
+                mv.addObject("patientLazy", new PersonDto());
+                return mv;
+            } else {
+                // Se não houver CPF, voltar para a página inicial com mensagem de erro
+                ModelAndView mv = new ModelAndView("home");
+                mv.addObject("loggedAs", "Logado como Médico");
+                mv.addObject("mensagem", "Erro: CPF do paciente não informado!");
+                mv.addObject("patientLazy", new PersonDto());
+                return mv;
+            }
+        } catch (Exception e) {
+            // Tratamento de erro
+            ModelAndView mv = new ModelAndView("home");
+            mv.addObject("loggedAs", "Logado como Médico");
+            mv.addObject("mensagem", "Erro ao salvar consulta: " + e.getMessage());
+            mv.addObject("patientLazy", new PersonDto());
+            return mv;
+        }
     }
 }
